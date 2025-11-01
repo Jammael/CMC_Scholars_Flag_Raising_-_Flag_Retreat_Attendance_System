@@ -1,0 +1,2 @@
+# CMC_Scholars_Flag_Raising_-_Flag_Retreat_Attendance_System
+The CMC Scholars  Flag Raising &amp; Flag Retreat Attendance System is a web-based attendance monitoring system designed to record and manage the attendance of Carmen Municipal College scholars during flag ceremonies and flag retreats. This system provides a digital, automated, and paperless solution for monitoring scholar participation every (mon-fri)
