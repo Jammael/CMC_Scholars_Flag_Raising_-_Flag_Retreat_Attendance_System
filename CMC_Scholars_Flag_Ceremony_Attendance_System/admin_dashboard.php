@@ -104,7 +104,14 @@ $currentYear = date('Y');
 $startOfWeek = date('Y-m-d', strtotime('monday this week'));
 $endOfWeek = date('Y-m-d', strtotime('sunday this week'));
 
-// attendance query with weekly filter
+// Get the current week's Monday and Friday dates
+$thisWeekMonday = date('Y-m-d', strtotime('monday this week'));
+$thisWeekFriday = date('Y-m-d', strtotime('friday this week'));
+
+// Set the specific day based on ceremony type
+$filterDate = $ceremony === 'retreat' ? $thisWeekFriday : $thisWeekMonday;
+
+// Modified query to only show current week's Monday or Friday
 $q = "
   SELECT
     a.id,
@@ -130,19 +137,13 @@ $q = "
   FROM attendance a
   LEFT JOIN students s ON a.student_id = s.student_id 
   WHERE a.day = ?
-  AND (
-    -- Show current week's records
-    (a.date BETWEEN ? AND ?) 
-    OR 
-    -- Also include today's records if any
-    DATE(a.date) = ?
-  )
-  ORDER BY a.date DESC, a.time_in DESC
+  AND DATE(a.date) = ?
+  ORDER BY a.time_in ASC
 ";
 
 $stmt = $mysqli->prepare($q);
 if ($stmt) {
-    $stmt->bind_param('ssss', $filterDay, $startOfWeek, $endOfWeek, $currentDate);
+    $stmt->bind_param('ss', $filterDay, $filterDate);
     $stmt->execute();
     $result = $stmt->get_result();
 } else {
@@ -604,13 +605,8 @@ if ($mysqli->error) {
     <div>
         <h4 style="margin:0">Recent Attendance (<?php echo ucfirst($ceremony); ?>)</h4>
         <small style="opacity:.9">
-            Showing attendance for week of 
-            <?php echo date('M d', strtotime($startOfWeek)); ?> 
-            - 
-            <?php echo date('M d, Y', strtotime($endOfWeek)); ?>
-            <?php if(date('Y-m-d') === $currentDate): ?>
-                (Including today's records)
-            <?php endif; ?>
+            Showing attendance for <?php echo $filterDay; ?>, 
+            <?php echo date('M d, Y', strtotime($filterDate)); ?>
         </small>
     </div>
     <div class="controls">
