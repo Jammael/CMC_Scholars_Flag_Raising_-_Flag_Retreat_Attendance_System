@@ -1010,20 +1010,30 @@ if ($mysqli->error) {
                 <div class="card mb-3">
                         <div class="card-banner d-flex justify-content-between align-items-center">
     <div>
-        <h4 style="margin:0">Recent Attendance (<?php echo ucfirst($ceremony); ?>)</h4>
+        <h4 style="margin:0">
+            <i class="fas fa-history"></i> Recent Attendance (<?php echo ucfirst($ceremony); ?>)
+        </h4>
         <small style="opacity:.9">
-            Showing attendance for <?php echo $filterDay; ?>, 
+            <i class="fas fa-calendar-alt"></i> Showing attendance for <?php echo $filterDay; ?>, 
             <?php echo date('M d, Y', strtotime($filterDate)); ?>
         </small>
     </div>
     <div class="controls">
-                            <a class="btn btn-success btn-sm" href="admin_dashboard.php?tab=attendance&ceremony=raising">Flag Raising</a>
-                            <a class="btn btn-primary btn-sm" href="admin_dashboard.php?tab=attendance&ceremony=retreat">Flag Retreat</a>
-                            <a class="btn btn-primary btn-sm fw-bold text-white" href="admin_dashboard.php?tab=scholars">Scholars List</a>
-
-                            <!-- Export / Print -->
-                            <a class="btn btn-success btn-sm btn-export" href="admin_dashboard.php?export=attendance_csv&ceremony=<?php echo $ceremony; ?>">Export CSV</a>
-                            <button class="btn btn-outline-light btn-sm" onclick="window.print()">Print</button>
+                            <a class="btn btn-success btn-sm" href="admin_dashboard.php?tab=attendance&ceremony=raising">
+                                <i class="fas fa-flag-usa"></i> Flag Raising
+                            </a>
+                            <a class="btn btn-primary btn-sm" href="admin_dashboard.php?tab=attendance&ceremony=retreat">
+                                <i class="fas fa-flag"></i> Flag Retreat
+                            </a>
+                            <a class="btn btn-primary btn-sm fw-bold text-white" href="admin_dashboard.php?tab=scholars">
+                                <i class="fas fa-user-graduate"></i> Scholars List
+                            </a>
+                            <a class="btn btn-success btn-sm btn-export" href="admin_dashboard.php?export=attendance_csv&ceremony=<?php echo $ceremony; ?>">
+                                <i class="fas fa-file-export"></i> Export CSV
+                            </a>
+                            <button class="btn btn-outline-light btn-sm" onclick="window.print()">
+                                <i class="fas fa-print"></i> Print
+                            </button>
                         </div>
                     </div>
 
@@ -1032,13 +1042,13 @@ if ($mysqli->error) {
                             <table class="table table-hover mb-0">
                                 <thead class="table-light">
     <tr>
-        <th style="width:48px">#</th>
-        <th>Student</th>
-        <th>Student ID</th>
-        <th>Date</th>
-        <th>Day</th> 
-        <th>Time In</th>
-        <th>Status</th>
+        <th style="width:48px"><i class="fas fa-hashtag" title="#"></i></th>
+        <th><i class="fas fa-user" title="Student"></i> Student</th>
+        <th><i class="fas fa-id-badge" title="Student ID"></i> Student ID</th>
+        <th><i class="fas fa-calendar" title="Date"></i> Date</th>
+        <th><i class="fas fa-calendar-day" title="Day"></i> Day</th>
+        <th><i class="fas fa-clock" title="Time In"></i> Time In</th>
+        <th><i class="fas fa-clipboard-check" title="Status"></i> Status</th>
     </tr>
 </thead>
 <tbody>
@@ -1078,8 +1088,10 @@ if ($mysqli->error) {
     <div class="card">
         <div class="card-banner d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="mb-0">Scholars List</h4>
-                <small>Manage and view all scholars in the system</small>
+                <h4 class="mb-0">
+                    <i class="fas fa-user-graduate"></i> Scholars List
+                </h4>
+                <small><i class="fas fa-info-circle"></i> Manage and view all scholars in the system</small>
             </div>
             <div class="controls">
                 <form class="d-flex gap-2" method="get" action="admin_dashboard.php">
@@ -1087,12 +1099,20 @@ if ($mysqli->error) {
                     <input class="form-control form-control-sm" name="q" type="search" 
                         placeholder="Search scholars..." style="width: 200px;" 
                         value="<?php echo isset($_GET['q']) ? htmlspecialchars($_GET['q']) : '' ?>">
-                    <button class="btn btn-primary btn-sm px-3" style="min-width: 90px;" type="submit">Search</button>
+                    <button class="btn btn-primary btn-sm px-3" style="min-width: 90px;" type="submit">
+                        <i class="fas fa-search"></i> Search
+                    </button>
                     <?php if (isset($_GET['q']) && !empty($_GET['q'])): ?>
-                        <a href="admin_dashboard.php?tab=scholars" class="btn btn-light btn-sm px-3">Clear</a>
+                        <a href="admin_dashboard.php?tab=scholars" class="btn btn-light btn-sm px-3">
+                            <i class="fas fa-times"></i> Clear
+                        </a>
                     <?php endif; ?>
-                    <a href="admin_dashboard.php?tab=add" class="btn btn-primary btn-sm px-3">Add Scholar</a>
-                    <a class="btn btn-success btn-sm px-3" href="admin_dashboard.php?export=scholars_csv">Export CSV</a>
+                    <a href="admin_dashboard.php?tab=add" class="btn btn-primary btn-sm px-3">
+                        <i class="fas fa-user-plus"></i> Add Scholar
+                    </a>
+                    <a class="btn btn-success btn-sm px-3" href="admin_dashboard.php?export=scholars_csv">
+                        <i class="fas fa-file-export"></i> Export CSV
+                    </a>
                 </form>
             </div>
         </div>
@@ -1102,14 +1122,14 @@ if ($mysqli->error) {
                 <table class="table table-hover mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th style="width:48px">#</th>
-                            <th>Fullname</th>
-                            <th>Student ID</th>
-                            <th>Course</th>
-                            <th>Year</th>
-                            <th>Section</th>
-                            <th>Scholarship</th>
-                            <th>Actions</th>
+                            <th style="width:48px"><i class="fas fa-hashtag"></i> #</th>
+                            <th><i class="fas fa-user"></i> Fullname</th>
+                            <th><i class="fas fa-id-card"></i> Student ID</th>
+                            <th><i class="fas fa-book"></i> Course</th>
+                            <th><i class="fas fa-graduation-cap"></i> Year</th>
+                            <th><i class="fas fa-layer-group"></i> Section</th>
+                            <th><i class="fas fa-award"></i> Scholarship</th>
+                            <th><i class="fas fa-cog"></i> Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1124,12 +1144,20 @@ if ($mysqli->error) {
                                     <td><?php echo safe_html($st['section']); ?></td>
                                     <td><?php echo safe_html($st['scholarship_type']); ?></td>
                                     <td>
-                                        <a class="btn btn-sm btn-outline-primary" href="admin_dashboard.php?tab=edit&student_id=<?php echo urlencode($st['student_id']); ?>">Edit</a>
-                                        <form method="post" action="admin_dashboard.php" style="display:inline" onsubmit="return confirm('Delete this scholar?');">
-                                            <input type="hidden" name="action" value="delete_student">
-                                            <input type="hidden" name="student_id" value="<?php echo htmlspecialchars($st['student_id']); ?>">
-                                            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
-                                        </form>
+                                        <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end;">
+                                            <a href="admin_dashboard.php?tab=edit&student_id=<?php echo urlencode($st['student_id']); ?>"
+                                               class="btn btn-sm btn-outline-primary" title="Edit">
+                                                <i class="fas fa-pen"></i>
+                                            </a>
+                                            <form method="post" action="admin_dashboard.php" style="display:inline;margin:0;"
+                                                  onsubmit="return confirm('Delete this scholar?');" aria-label="Delete scholar">
+                                                <input type="hidden" name="action" value="delete_student">
+                                                <input type="hidden" name="student_id" value="<?php echo htmlspecialchars($st['student_id']); ?>">
+                                                <button class="btn btn-sm btn-outline-danger" type="submit" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -1147,11 +1175,17 @@ if ($mysqli->error) {
                 <div class="card">
                     <div class="card-banner d-flex justify-content-between align-items-center">
                         <div>
-                            <h4 class="mb-0">Add Scholar</h4>
-                            <small>Add new scholar to the system</small>
+                            <h4 class="mb-0">
+                                <i class="fas fa-user-plus"></i> Add Scholar
+                            </h4>
+                            <small>
+                                <i class="fas fa-pen"></i> Add new scholar to the system
+                            </small>
                         </div>
                         <div class="controls">
-                            <a href="admin_dashboard.php?tab=scholars" class="btn btn-light btn-sm">Back to Scholars List</a>
+                            <a href="admin_dashboard.php?tab=scholars" class="btn btn-light btn-sm">
+                                <i class="fas fa-arrow-left"></i> Back to Scholars List
+                            </a>
                         </div>
                     </div>
 
@@ -1160,33 +1194,49 @@ if ($mysqli->error) {
                             <input type="hidden" name="action" value="add_student">
                             <div class="row g-2">
                                 <div class="col-md-4">
-                                    <label class="form-label">Student ID</label>
+                                    <label class="form-label">
+                                        <i class="fas fa-id-card"></i> Student ID
+                                    </label>
                                     <input class="form-control" name="student_id" required>
                                 </div>
                                 <div class="col-md-8">
-                                    <label class="form-label">Fullname</label>
+                                    <label class="form-label">
+                                        <i class="fas fa-user"></i> Fullname
+                                    </label>
                                     <input class="form-control" name="fullname" required>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">Course</label>
+                                    <label class="form-label">
+                                        <i class="fas fa-book"></i> Course
+                                    </label>
                                     <input class="form-control" name="course">
                                 </div>
                                 <div class="col-md-2">
-                                    <label class="form-label">Year</label>
+                                    <label class="form-label">
+                                        <i class="fas fa-graduation-cap"></i> Year
+                                    </label>
                                     <input class="form-control" name="year">
                                 </div>
                                 <div class="col-md-2">
-                                    <label class="form-label">Section</label>
+                                    <label class="form-label">
+                                        <i class="fas fa-layer-group"></i> Section
+                                    </label>
                                     <input class="form-control" name="section">
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">Scholarship Type</label>
+                                    <label class="form-label">
+                                        <i class="fas fa-award"></i> Scholarship Type
+                                    </label>
                                     <input class="form-control" name="scholarship_type">
                                 </div>
                             </div>
                             <div class="mt-3">
-                                <button class="btn btn-primary" type="submit">Add Scholar</button>
-                                <a class="btn btn-secondary" href="admin_dashboard.php?tab=scholars">Cancel</a>
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-plus-circle"></i> Add Scholar
+                                </button>
+                                <a class="btn btn-secondary" href="admin_dashboard.php?tab=scholars">
+                                    <i class="fas fa-times"></i> Cancel
+                                </a>
                             </div>
                         </form>
                     </div>
@@ -1194,41 +1244,67 @@ if ($mysqli->error) {
 
             <?php elseif ($tab === 'edit' && $editStudent): ?>
 
-               
-                    <div class="card-body">
-                        <h4 class="mb-3">Edit Scholar — <?php echo htmlspecialchars($editStudent['student_id']); ?></h4>
-                        <form method="post" action="admin_dashboard.php">
-                            <input type="hidden" name="action" value="edit_student">
-                            <input type="hidden" name="student_id" value="<?php echo htmlspecialchars($editStudent['student_id']); ?>">
-                            <div class="row g-2">
-                                <div class="col-md-8">
-                                    <label class="form-label">Fullname</label>
-                                    <input class="form-control" name="fullname" value="<?php echo safe_html($editStudent['fullname']); ?>" required>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Course</label>
-                                    <input class="form-control" name="course" value="<?php echo safe_html($editStudent['course']); ?>">
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="form-label">Year</label>
-                                    <input class="form-control" name="year" value="<?php echo safe_html($editStudent['year']); ?>">
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="form-label">Section</label>
-                                    <input class="form-control" name="section" value="<?php echo safe_html($editStudent['section']); ?>">
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Scholarship Type</label>
-                                    <input class="form-control" name="scholarship_type" value="<?php echo safe_html($editStudent['scholarship_type']); ?>">
-                                </div>
-                            </div>
-                            <div class="mt-3">
-                                <button class="btn btn-primary" type="submit">Save Changes</button>
-                                <a class="btn btn-secondary" href="admin_dashboard.php?tab=scholars">Cancel</a>
-                            </div>
-                        </form>
+    <div class="card">
+        <div class="card-banner d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-0">
+                    <i class="fas fa-user-edit"></i> Edit Scholar
+                </h4>
+                <small>
+                    <i class="fas fa-id-badge"></i> Student ID: <?php echo safe_html($editStudent['student_id']); ?>
+                </small>
+            </div>
+            <div class="controls">
+                <a href="admin_dashboard.php?tab=scholars" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left"></i> Back to Scholars List
+                </a>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <!-- Add form tags with method and action -->
+            <form method="post" action="admin_dashboard.php">
+                <input type="hidden" name="action" value="edit_student">
+                <input type="hidden" name="student_id" value="<?php echo safe_html($editStudent['student_id']); ?>">
+                
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label"><i class="fas fa-id-card"></i> Student ID</label>
+                        <input class="form-control" readonly value="<?php echo safe_html($editStudent['student_id']); ?>">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label"><i class="fas fa-user"></i> Fullname</label>
+                        <input class="form-control" name="fullname" value="<?php echo safe_html($editStudent['fullname']); ?>" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label"><i class="fas fa-book"></i> Course</label>
+                        <input class="form-control" name="course" value="<?php echo safe_html($editStudent['course']); ?>">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label"><i class="fas fa-graduation-cap"></i> Year</label>
+                        <input class="form-control" name="year" value="<?php echo safe_html($editStudent['year']); ?>">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label"><i class="fas fa-layer-group"></i> Section</label>
+                        <input class="form-control" name="section" value="<?php echo safe_html($editStudent['section']); ?>">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label"><i class="fas fa-award"></i> Scholarship Type</label>
+                        <input class="form-control" name="scholarship_type" value="<?php echo safe_html($editStudent['scholarship_type']); ?>">
                     </div>
                 </div>
+
+                <div class="mt-3 d-flex gap-2">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <a class="btn btn-secondary" href="admin_dashboard.php?tab=scholars">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
 
             <?php elseif ($tab === 'reports'): ?>
     <?php
@@ -1260,12 +1336,20 @@ if ($mysqli->error) {
     <div class="card">
         <div class="card-banner d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="mb-0">Monthly Attendance Summary</h4>
-                <small>View and export monthly attendance records</small>
+                <h4 class="mb-0">
+                    <i class="fas fa-chart-bar"></i> Monthly Attendance Summary
+                </h4>
+                <small>
+                    <i class="fas fa-file-export"></i> View and export monthly attendance records
+                </small>
             </div>
             <div class="controls">
-                <button class="btn btn-light btn-sm" onclick="window.location.href='monthly_report.php'">View Full Report</button>
-                <button class="btn btn-dark btn-sm" onclick="window.location.href='admin_dashboard.php?tab=attendance'">Back to Dashboard</button>
+                <button class="btn btn-light btn-sm" onclick="window.location.href='monthly_report.php'">
+                    <i class="fas fa-file-alt"></i> View Full Report
+                </button>
+                <button class="btn btn-dark btn-sm" onclick="window.location.href='admin_dashboard.php?tab=attendance'">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </button>
             </div>
         </div>
 
@@ -1274,7 +1358,7 @@ if ($mysqli->error) {
             <form method="get" action="admin_dashboard.php" class="row g-3 mb-4">
                 <input type="hidden" name="tab" value="reports">
                 <div class="col-md-4">
-                    <label class="form-label">Month</label>
+                    <label class="form-label"><i class="fas fa-calendar-alt"></i> Month</label>
                     <select class="form-select" name="month">
                         <?php foreach($months as $num => $name): ?>
                             <option value="<?php echo $num; ?>" <?php echo $selectedMonth == $num ? 'selected' : ''; ?>>
@@ -1284,13 +1368,17 @@ if ($mysqli->error) {
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label">Year</label>
+                    <label class="form-label"><i class="fas fa-calendar-year"></i> Year</label>
                     <input type="number" class="form-control" name="year" value="<?php echo $selectedYear; ?>">
                 </div>
                 <div class="col-md-4 d-flex align-items-end">
                     <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">View Report</button>
-                        <button type="button" class="btn btn-success" onclick="exportReport()">Export CSV</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> View Report
+                        </button>
+                        <button type="button" class="btn btn-success" onclick="exportReport()">
+                            <i class="fas fa-file-export"></i> Export CSV
+                        </button>
                     </div>
                 </div>
             </form>
@@ -1300,15 +1388,19 @@ if ($mysqli->error) {
                 <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th colspan="4" class="text-center bg-success text-black">Flag Raising Ceremony (Monday)</th>
-                            <th colspan="3" class="text-center bg-primary text-black">Flag Retreat Ceremony (Friday)</th>
+                            <th colspan="4" class="text-center bg-success text-black">
+                                <i class="fas fa-flag-usa"></i> Flag Raising Ceremony (Monday)
+                            </th>
+                            <th colspan="3" class="text-center bg-primary text-black">
+                                <i class="fas fa-flag"></i> Flag Retreat Ceremony (Friday)
+                            </th>
                         </tr>
                         <tr>
-                            <th>Present</th>
-                            <th>Late</th>
-                            <th>Absent</th>
-                            <th>Total</th>
-                            <th>Total</th>
+                            <th><i class="fas fa-check text-success"></i> Present</th>
+                            <th><i class="fas fa-clock text-warning"></i> Late</th>
+                            <th><i class="fas fa-times text-danger"></i> Absent</th>
+                            <th><i class="fas fa-list"></i> Total</th>
+                            <th><i class="fas fa-list"></i> Total</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1341,16 +1433,16 @@ if ($mysqli->error) {
             </div>
 
             <!-- Recent Records Table -->
-            <h5 class="mb-3">Recent Attendance Records</h5>
+            <h5 class="mb-3"><i class="fas fa-history"></i> Recent Attendance Records</h5>
             <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
                 <table class="table table-hover table-striped mb-0">
                     <thead class="sticky-top">
                         <tr class="bg-light">
-                            <th style="width: 50px">#</th>
-                            <th style="min-width: 200px">Student</th>
-                            <th style="min-width: 120px">Date</th>
-                            <th style="min-width: 100px">Time In</th>
-                            <th style="min-width: 100px">Status</th>
+                            <th style="width: 50px"><i class="fas fa-hashtag"></i></th>
+                            <th style="min-width: 200px"><i class="fas fa-user"></i> Student</th>
+                            <th style="min-width: 120px"><i class="fas fa-calendar"></i> Date</th>
+                            <th style="min-width: 100px"><i class="fas fa-clock"></i> Time In</th>
+                            <th style="min-width: 100px"><i class="fas fa-clipboard-check"></i> Status</th>
                         </tr>
                     </thead>
                     <tbody>
