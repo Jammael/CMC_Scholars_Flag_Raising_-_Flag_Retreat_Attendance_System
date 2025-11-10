@@ -97,7 +97,14 @@ $tab = isset($_GET['tab']) ? $_GET['tab'] : 'attendance';
 $ceremony = (isset($_GET['ceremony']) && $_GET['ceremony'] === 'retreat') ? 'retreat' : 'raising';
 $filterDay = $ceremony === 'retreat' ? 'Friday' : 'Monday';
 
-// attendance query (filtered by day for the selected ceremony)
+// Get the current date and start of week
+$currentDate = date('Y-m-d');
+$currentMonth = date('m');
+$currentYear = date('Y');
+$startOfWeek = date('Y-m-d', strtotime('monday this week'));
+$endOfWeek = date('Y-m-d', strtotime('sunday this week'));
+
+// attendance query with weekly filter
 $q = "
   SELECT
     a.id,
@@ -123,13 +130,19 @@ $q = "
   FROM attendance a
   LEFT JOIN students s ON a.student_id = s.student_id 
   WHERE a.day = ?
+  AND (
+    -- Show current week's records
+    (a.date BETWEEN ? AND ?) 
+    OR 
+    -- Also include today's records if any
+    DATE(a.date) = ?
+  )
   ORDER BY a.date DESC, a.time_in DESC
-  LIMIT 200
 ";
 
 $stmt = $mysqli->prepare($q);
 if ($stmt) {
-    $stmt->bind_param('s', $filterDay);
+    $stmt->bind_param('ssss', $filterDay, $startOfWeek, $endOfWeek, $currentDate);
     $stmt->execute();
     $result = $stmt->get_result();
 } else {
@@ -280,6 +293,7 @@ if ($mysqli->error) {
     <title>Admin Dashboard — CMC Scholars</title>
     <link href="bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="icon" type="image/jpg" href="images/favicon.jpg"/>
+    <meta http-equiv="refresh" content="300"> <!-- Refreshes every 5 minutes -->
     <style>
         /* Responsive sidebar + table fixes (replaces previous style block parts) */
         :root{
@@ -587,11 +601,19 @@ if ($mysqli->error) {
             <?php if ($tab === 'attendance'): ?>
                 <div class="card mb-3">
                     <div class="card-banner d-flex justify-content-between align-items-center">
-                        <div>
-                            <h4 style="margin:0">Recent Attendance (<?php echo ucfirst($ceremony); ?>)</h4>
-                            <small style="opacity:.9">Showing recent <?php echo htmlspecialchars($ceremony); ?> attendance (filtered by <?php echo htmlspecialchars($filterDay); ?>)</small>
-                        </div>
-                        <div class="controls">
+    <div>
+        <h4 style="margin:0">Recent Attendance (<?php echo ucfirst($ceremony); ?>)</h4>
+        <small style="opacity:.9">
+            Showing attendance for week of 
+            <?php echo date('M d', strtotime($startOfWeek)); ?> 
+            - 
+            <?php echo date('M d, Y', strtotime($endOfWeek)); ?>
+            <?php if(date('Y-m-d') === $currentDate): ?>
+                (Including today's records)
+            <?php endif; ?>
+        </small>
+    </div>
+    <div class="controls">
                             <a class="btn btn-success btn-sm" href="admin_dashboard.php?tab=attendance&ceremony=raising">Flag Raising</a>
                             <a class="btn btn-primary btn-sm" href="admin_dashboard.php?tab=attendance&ceremony=retreat">Flag Retreat</a>
                             <a class="btn btn-primary btn-sm fw-bold text-white" href="admin_dashboard.php?tab=scholars">Scholars List</a>
@@ -606,43 +628,44 @@ if ($mysqli->error) {
                         <div class="table-responsive">
                             <table class="table table-hover mb-0">
                                 <thead class="table-light">
-                                    <tr>
-                                        <th style="width:48px">#</th>
-                                        <th>Student</th>
-                                        <th>Student ID</th>
-                                        <th>Date</th>
-                                        <th>Day</th>
-                                        <th>Time In</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if ($result && $result->num_rows > 0): ?>
-                                        <?php $i = 1; while ($row = $result->fetch_assoc()): ?>
-                                            <tr>
-                                                <td><?php echo $i++; ?></td>
-                                                <td><?php echo safe_html($row['student_name'] ?? 'Unknown'); ?></td>
-                                                <td><?php echo safe_html($row['student_id'] ?? ''); ?></td>
-                                                <td><?php echo $row['date'] ? date('Y-m-d', strtotime($row['date'])) : ''; ?></td>
-                                                <td><?php echo $row['time_in'] ? date('h:i A', strtotime($row['time_in'])) : ''; ?></td>
-                                                <td>
-                                                    <?php
-                                                        $status = $row['status'] ?? 'Unknown';
-                                                        $cls = match($status) {
-                                                            'Present' => 'text-success',
-                                                            'Late' => 'text-warning',
-                                                            'Absent' => 'text-danger',
-                                                            default => 'text-secondary'
-                                                        };
-                                                    ?>
-                                                    <span class="<?php echo $cls; ?>"><?php echo safe_html($status); ?></span>
-                                                </td>
-                                            </tr>
-                                        <?php endwhile; ?>
-                                    <?php else: ?>
-                                        <tr><td colspan="7" class="text-center p-4">No attendance records found.</td></tr>
-                                    <?php endif; ?>
-                                </tbody>
+    <tr>
+        <th style="width:48px">#</th>
+        <th>Student</th>
+        <th>Student ID</th>
+        <th>Date</th>
+        <th>Day</th> 
+        <th>Time In</th>
+        <th>Status</th>
+    </tr>
+</thead>
+<tbody>
+    <?php if ($result && $result->num_rows > 0): ?>
+        <?php $i = 1; while ($row = $result->fetch_assoc()): ?>
+            <tr>
+                <td><?php echo $i++; ?></td>
+                <td><?php echo safe_html($row['student_name'] ?? 'Unknown'); ?></td>
+                <td><?php echo safe_html($row['student_id'] ?? ''); ?></td>
+                <td><?php echo $row['date'] ? date('Y-m-d', strtotime($row['date'])) : ''; ?></td>
+                <td><?php echo safe_html($row['day']); ?></td>
+                <td><?php echo $row['time_in'] ? date('h:i A', strtotime($row['time_in'])) : ''; ?></td>
+                <td>
+                    <?php
+                    $status = $row['status'] ?? 'Unknown';
+                    $statusClass = match($status) {
+                        'Present' => 'text-success',
+                        'Late' => 'text-warning',
+                        'Absent' => 'text-danger',
+                        default => 'text-secondary'
+                    };
+                    echo "<span class=\"{$statusClass}\">" . safe_html($status) . "</span>";
+                    ?>
+                </td>
+            </tr>
+        <?php endwhile; ?>
+    <?php else: ?>
+        <tr><td colspan="7" class="text-center p-4">No attendance records found.</td></tr>
+    <?php endif; ?>
+</tbody>
                             </table>
                         </div>
                     </div>
