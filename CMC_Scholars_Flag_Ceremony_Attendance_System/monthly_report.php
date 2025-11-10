@@ -28,20 +28,17 @@ $query = "
     SELECT 
         s.student_id,
         s.fullname,
+        -- Monday (Flag Raising)
         COUNT(CASE WHEN a.day = 'Monday' THEN 1 END) as mon_total,
         COUNT(CASE WHEN a.day = 'Monday' AND TIME(a.time_in) <= '07:30:00' THEN 1 END) as mon_present,
         COUNT(CASE WHEN a.day = 'Monday' AND TIME(a.time_in) > '07:30:00' AND TIME(a.time_in) <= '08:00:00' THEN 1 END) as mon_late,
-        COUNT(CASE WHEN a.day = 'Monday' AND (TIME(a.time_in) > '08:00:00' OR a.time_in IS NULL) THEN 1 END) as mon_absent,
+        COUNT(CASE WHEN a.day = 'Monday' AND (a.time_in IS NULL OR TIME(a.time_in) > '08:00:00') THEN 1 END) as mon_absent,
+        -- Friday (Flag Retreat)
         COUNT(CASE WHEN a.day = 'Friday' THEN 1 END) as fri_total,
-        COUNT(CASE 
-            WHEN a.day = 'Friday' AND TIME(a.time_in) >= '16:00:00' AND TIME(a.time_in) <= '17:00:00' 
-            THEN 1 
-        END) as fri_present,
-        COUNT(CASE 
-            WHEN a.day = 'Friday' AND (TIME(a.time_in) < '16:00:00' OR TIME(a.time_in) > '17:00:00' OR a.time_in IS NULL)
-            THEN 1 
-        END) as fri_absent,
-        MAX(a.time_in) as last_login
+        COUNT(CASE WHEN a.day = 'Friday' AND TIME(a.time_in) >= '16:00:00' AND TIME(a.time_in) <= '17:00:00' THEN 1 END) as fri_present,
+        COUNT(CASE WHEN a.day = 'Friday' AND (a.time_in IS NULL OR TIME(a.time_in) < '16:00:00' OR TIME(a.time_in) > '17:00:00') THEN 1 END) as fri_absent,
+        -- capture last login as combined datetime so we can split date/time reliably
+        MAX(CONCAT(a.date, ' ', IFNULL(a.time_in, '00:00:00'))) as last_login_dt
     FROM students s
     LEFT JOIN attendance a ON s.student_id = a.student_id 
         AND MONTH(a.date) = ?
@@ -67,39 +64,44 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     // Add UTF-8 BOM for proper Excel encoding
     fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
     
-    // Add headers
+    // Add headers (split Last Login into Date and Time)
     fputcsv($output, array(
         '#',
         'Student ID',
         'Fullname',
-        'Flag Raising - Total',
         'Flag Raising - Present',
         'Flag Raising - Late',
         'Flag Raising - Absent',
-        'Flag Retreat - Total',
+        'Flag Raising - Total',
         'Flag Retreat - Present',
         'Flag Retreat - Absent',
+        'Flag Retreat - Total',
         'Total Absences',
-        'Last Login'
+        'Last Login Date',
+        'Last Login Time'
     ));
     
     // Add data rows
     if ($result && $result->num_rows > 0) {
         $i = 1;
         while ($row = $result->fetch_assoc()) {
+            $last_dt = $row['last_login_dt'] ? strtotime($row['last_login_dt']) : false;
+            $last_date = $last_dt ? date('Y-m-d', $last_dt) : '-';
+            $last_time = $last_dt ? date('h:i A', $last_dt) : '-';
             fputcsv($output, array(
                 $i++,
                 $row['student_id'],
                 $row['fullname'],
-                $row['mon_total'],
                 $row['mon_present'],
                 $row['mon_late'],
                 $row['mon_absent'],
-                $row['fri_total'],
+                $row['mon_total'],
                 $row['fri_present'],
                 $row['fri_absent'],
+                $row['fri_total'],
                 ($row['mon_absent'] + $row['fri_absent']),
-                $row['last_login'] ? date('Y-m-d h:i A', strtotime($row['last_login'])) : '-'
+                $last_date,
+                $last_time
             ));
         }
     }
@@ -116,6 +118,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     <title>Monthly Attendance Summary</title>
     <link href="bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="icon" type="image/jpg" href="images/favicon.jpg"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { 
             background: linear-gradient(180deg, #ffffff 0%,  #ffffff 100%);
@@ -231,6 +234,15 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     font-size: 0.875rem;
     color: #6c757d;
 }
+
+/* Slightly speed up or slow animations if needed */
+.fa-beat    { --fa-animation-duration: 1.1s; }
+.fa-bounce  { --fa-animation-duration: 1.3s; }
+.fa-fade    { --fa-animation-duration: 1.8s; }
+.fa-spin    { --fa-animation-duration: 1.6s; }
+
+/* ensure icons in headers align nicely */
+th i { margin-right: .45rem; vertical-align: middle; }
     </style>
 </head>
 <body>
@@ -238,24 +250,46 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <div>
-                    <h4 class="mb-0">Monthly Attendance Summary</h4>
-                    <small>Summary for month: <?php echo date('F Y', mktime(0,0,0,$month,1,$year)); ?></small>
+                    <h4 class="mb-0">
+                        <!-- animated banner icon -->
+                        <i class="fas fa-chart-bar fa-beat fa-lg" aria-hidden="true"></i>
+                        Monthly Attendance Summary
+                    </h4>
+                    <small>
+                        <i class="fas fa-calendar-alt fa-fade" aria-hidden="true"></i>
+                        Summary for month: <?php echo date('F Y', mktime(0,0,0,$month,1,$year)); ?>
+                    </small>
                 </div>
                 <div class="header-controls">
                     <form class="d-flex gap-2" method="get">
-                        <select name="month" class="form-select form-select-sm">
-                            <?php for($m=1; $m<=12; $m++): ?>
-                                <option value="<?php echo $m; ?>" <?php echo $m==$month?'selected':''; ?>>
-                                    <?php echo date('F', mktime(0,0,0,$m,1)); ?>
-                                </option>
-                            <?php endfor; ?>
-                        </select>
-                        <input type="number" name="year" class="form-control form-control-sm" style="width:100px" value="<?php echo $year; ?>">
-                        <button type="submit" class="btn btn-light btn-sm">View</button>
+                        <!-- month selector (icon outside select) -->
+                        <div style="display:flex;align-items:center;gap:.5rem">
+                            <i class="fas fa-calendar-month fa-beat" aria-hidden="true"></i>
+                            <select name="month" class="form-select form-select-sm">
+                                <?php for($m=1; $m<=12; $m++): ?>
+                                    <option value="<?php echo $m; ?>" <?php echo $m==$month?'selected':''; ?>>
+                                        <?php echo date('F', mktime(0,0,0,$m,1)); ?>
+                                    </option>
+                                <?php endfor; ?>
+                            </select>
+                        </div>
+
+                        <div style="display:flex;align-items:center;gap:.5rem">
+                            <i class="fas fa-calendar fa-fade" aria-hidden="true"></i>
+                            <input type="number" name="year" class="form-control form-control-sm" style="width:100px" value="<?php echo $year; ?>">
+                        </div>
+
+                        <button type="submit" class="btn btn-light btn-sm">
+                            <i class="fas fa-search fa-flip fa-fw" aria-hidden="true"></i> View
+                        </button>
+
                         <a href="?export=csv&month=<?php echo $month; ?>&year=<?php echo $year; ?>" class="btn btn-success btn-sm">
-                            <i class="bi bi-file-excel"></i> Export CSV
+                            <i class="fas fa-file-export fa-bounce fa-fw" aria-hidden="true"></i> Export CSV
                         </a>
-                        <a href="admin_dashboard.php?tab=attendance" class="btn btn-dark btn-sm">Back to Dashboard</a>
+
+                        <a href="admin_dashboard.php?tab=attendance" class="btn btn-dark btn-sm">
+                            <i class="fas fa-arrow-left fa-beat" aria-hidden="true"></i> Back to Dashboard
+                        </a>
                     </form>
                 </div>
             </div>
@@ -264,45 +298,77 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
                 <table class="table table-hover table-striped mb-0">
                     <thead>
                         <tr>
-                            <th rowspan="2">#</th>
-                            <th rowspan="2">Student ID</th>
-                            <th rowspan="2">Fullname</th>
-                            <th colspan="4" class="text-center flag-raising">Flag Raising (Mon)</th>
-                            <th colspan="4" class="text-center flag-retreat">Flag Retreat (Fri)</th>
-                            <th rowspan="2">Last Login</th>
+                            <!-- ensure every <th> has an animated icon -->
+                            <th rowspan="2"><i class="fas fa-hashtag fa-beat" aria-hidden="true"></i></th>
+                            <th rowspan="2"><i class="fas fa-id-card fa-fade" aria-hidden="true"></i> Student ID</th>
+                            <th rowspan="2"><i class="fas fa-user fa-beat" aria-hidden="true"></i> Fullname</th>
+
+                            <th colspan="4" class="text-center flag-raising">
+                                <i class="fas fa-flag-usa fa-beat fa-lg" aria-hidden="true"></i> Flag Raising (Mon)
+                            </th>
+
+                            <th colspan="4" class="text-center flag-retreat">
+                                <i class="fas fa-flag fa-beat fa-lg" aria-hidden="true"></i> Flag Retreat (Fri)
+                            </th>
+
+                            <th rowspan="2"><i class="fas fa-calendar-check fa-beat" aria-hidden="true"></i> Last Login Date</th>
+                            <th rowspan="2"><i class="fas fa-clock fa-spin" aria-hidden="true"></i> Last Login Time</th>
                         </tr>
                         <tr>
-                            <th class="text-center">Total</th>
-                            <th class="text-center">Present</th>
-                            <th class="text-center">Late</th>
-                            <th class="text-center">Absent</th>
-                            <th class="text-center">Total</th>
-                            <th class="text-center">Present</th>
-                            <th class="text-center">Absent</th>
-                            <th class="text-center">Total Absences</th>
+                            <th class="text-center">
+                                <i class="fas fa-check-circle text-success fa-bounce" aria-hidden="true"></i> Present
+                            </th>
+                            <th class="text-center">
+                                <i class="fas fa-clock text-warning fa-spin" aria-hidden="true"></i> Late
+                            </th>
+                            <th class="text-center">
+                                <i class="fas fa-times-circle text-danger fa-shake" aria-hidden="true"></i> Absent
+                            </th>
+                            <th class="text-center">
+                                <i class="fas fa-list fa-beat" aria-hidden="true"></i> Total
+                            </th>
+
+                            <th class="text-center">
+                                <i class="fas fa-check-circle text-success fa-bounce" aria-hidden="true"></i> Present
+                            </th>
+                            <th class="text-center">
+                                <i class="fas fa-times-circle text-danger fa-shake" aria-hidden="true"></i> Absent
+                            </th>
+                            <th class="text-center">
+                                <i class="fas fa-list fa-beat" aria-hidden="true"></i> Total
+                            </th>
+                            <th class="text-center">
+                                <i class="fas fa-exclamation-circle text-danger fa-fade" aria-hidden="true"></i> Total Absences
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if ($result && $result->num_rows > 0): ?>
                             <?php $i = 1; while($row = $result->fetch_assoc()): ?>
+                                <?php
+                                    $last_dt = $row['last_login_dt'] ? strtotime($row['last_login_dt']) : false;
+                                    $last_date = $last_dt ? date('Y-m-d', $last_dt) : '-';
+                                    $last_time = $last_dt ? date('h:i A', $last_dt) : '-';
+                                ?>
                                 <tr>
                                     <td><?php echo $i++; ?></td>
                                     <td><?php echo htmlspecialchars($row['student_id']); ?></td>
                                     <td><?php echo htmlspecialchars($row['fullname']); ?></td>
-                                    <td class="text-center"><?php echo $row['mon_total']; ?></td>
                                     <td class="text-center"><?php echo $row['mon_present']; ?></td>
                                     <td class="text-center"><?php echo $row['mon_late']; ?></td>
                                     <td class="text-center"><?php echo $row['mon_absent']; ?></td>
-                                    <td class="text-center"><?php echo $row['fri_total']; ?></td>
+                                    <td class="text-center"><?php echo $row['mon_total']; ?></td>
                                     <td class="text-center"><?php echo $row['fri_present']; ?></td>
                                     <td class="text-center"><?php echo $row['fri_absent']; ?></td>
+                                    <td class="text-center"><?php echo $row['fri_total']; ?></td>
                                     <td class="text-center"><?php echo $row['mon_absent'] + $row['fri_absent']; ?></td>
-                                    <td><?php echo $row['last_login'] ? date('Y-m-d h:i A', strtotime($row['last_login'])) : '-'; ?></td>
+                                    <td><?php echo $last_date; ?></td>
+                                    <td><?php echo $last_time; ?></td>
                                 </tr>
                             <?php endwhile; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="12" class="text-center p-3">No records found for this month.</td>
+                                <td colspan="13" class="text-center p-3">No records found for this month.</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
