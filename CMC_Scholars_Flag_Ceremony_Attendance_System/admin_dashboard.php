@@ -847,7 +847,7 @@ if ($mysqli->error) {
         </div>
     </div>
 
-    <!-- Weekly Progress Overview (add this after the four dashboard cards and before the <?php endif; ?> for dashboard) -->
+   
     <?php
     // expected (total scholars)
     $expectedRow = $mysqli->query("SELECT COUNT(*) AS cnt FROM students")->fetch_assoc();
@@ -969,7 +969,7 @@ if ($mysqli->error) {
         </div>
     </div>
 
-    <!-- Chart.js --> 
+    <!-- Chart.js (loaded only on dashboard) --> 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
     (function(){
@@ -982,7 +982,7 @@ if ($mysqli->error) {
                 backgroundColor: ['#42a5f5','#66bb6a'],
                 borderRadius: 6,
                 barThickness: 40
-            },{
+            }, {
                 label: 'Missing (per day)',
                 data: [<?php echo max(0,$expected - $monday['recorded']); ?>, <?php echo max(0,$expected - $friday['recorded']); ?>],
                 backgroundColor: ['#ffcc80','#ffcc80'],
@@ -1004,7 +1004,9 @@ if ($mysqli->error) {
         });
     })();
     </script>
-            <?php if ($tab === 'attendance'): ?>
+    <?php endif; ?>
+     
+             <?php if ($tab === 'attendance'): ?>
                 <div class="card mb-3">
                         <div class="card-banner d-flex justify-content-between align-items-center">
     <div>
@@ -1455,6 +1457,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 sidebar.classList.remove('active');
                 mainContent.classList.remove('sidebar-active');
             }
+        
         });
     }
 });
