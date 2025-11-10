@@ -295,6 +295,7 @@ if ($mysqli->error) {
     <link href="bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="icon" type="image/jpg" href="images/favicon.jpg"/>
     <meta http-equiv="refresh" content="300"> <!-- Refreshes every 5 minutes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         /* Responsive sidebar + table fixes (replaces previous style block parts) */
         :root{
@@ -358,221 +359,347 @@ if ($mysqli->error) {
         .card-banner{background:rgba(95,72,243,0.95) !important;color:#fff;padding:14px;border-radius:var(--card-radius) var(--card-radius) 0 0;margin-bottom:.75rem;}
         .card-body{padding:14px}
 
-        /* Table styling */
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #fff;
-        }
+        /* Add these styles to fix card text overflow */
+.card-content {
+    text-align: center;
+    padding: 15px 10px;
+}
 
-        .table tr {
-            border-bottom: 1px solid #dee2e6;
-        }
+.card-content h2 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 0;
+    color: #fff;
+}
 
-        /* Remove striping */
-        .table tbody tr:nth-of-type(odd) {
-            background-color: transparent;
-        }
+.card-content p {
+    color: rgba(255, 255, 255, 0.8);
+    margin: 5px 0;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
-        /* Keep hover effect */
-        .table tbody tr:hover {
-            background-color: rgba(0,0,0,.075);
-        }
+.card-link {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-size: 0.8rem;
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    right: 15px;
+    text-align: center;
+}
 
-        /* Table responsiveness */
-        .table-responsive{
-            position:relative;
-            overflow-y:auto;
-            -webkit-overflow-scrolling: touch;
-            background: rgba(255,255,255,0.12);
-            border-radius:6px;
-            padding:0;
-            max-height: calc(100vh - 220px); /* space for stacked header/sidebar on mobile */
-        }
+.dashboard-card {
+    min-height: 180px;
+    padding: 15px;
+}
 
-        /* Fixed table header styling */
-        .table thead th{position:sticky;top:0;z-index:2;background:rgba(255,255,255,0.85);backdrop-filter:blur(4px);font-weight:700;border-bottom:1px solid rgba(0,0,0,0.06)}
-        .table td,.table th{white-space:nowrap;min-width:100px;padding:0.75rem;vertical-align:middle}
-        .table td:nth-child(2),.table th:nth-child(2){white-space:normal;min-width:160px}
+/* Adjust icon size and position */
+.card-icon {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 10px;
+    font-size: 1.5rem;
+}
 
-        /* Controls */
-        .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-        .controls .btn{min-height:34px}
+/* Table styling */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
 
-        /* Small screens improvements */
-        @media (max-width: 768px){
-            .table-responsive{max-height: calc(100vh - 300px);} /* allow more room for stacked sidebar + banner */
-            .nav-links a{text-align:center;padding:12px}
-            .sidebar{padding:12px}
-            .sidebar img{width:84px;height:84px}
-            .card-banner .controls{flex-direction:column;gap:8px;align-items:flex-end}
-            .card-banner .controls .btn{width:100%}
+.table tr {
+    border-bottom: 1px solid #dee2e6;
+}
 
-            /* Adjust card banner controls */
-            .card-banner {
-                flex-direction: column;
-                align-items: stretch !important;
-                gap: 10px;
-                padding: 12px !important;
-            }
+/* Remove striping */
+.table tbody tr:nth-of-type(odd) {
+    background-color: transparent;
+}
 
-            .card-banner .controls {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 4px !important;
-                width: 100%;
-            }
+/* Keep hover effect */
+.table tbody tr:hover {
+    background-color: rgba(0,0,0,.075);
+}
 
-            /* Make buttons smaller and more compact on mobile */
-            .card-banner .btn {
-                padding: 4px 8px !important;
-                font-size: 12px !important;
-                min-height: 28px !important;
-                flex: 1;
-                white-space: nowrap;
-                min-width: auto !important;
-            }
+/* Table responsiveness */
+.table-responsive{
+    position:relative;
+    overflow-y:auto;
+    -webkit-overflow-scrolling: touch;
+    background: rgba(255,255,255,0.12);
+    border-radius:6px;
+    padding:0;
+    max-height: calc(100vh - 220px); /* space for stacked header/sidebar on mobile */
+}
 
-            /* Adjust search form in scholars list */
-            .card-banner form.d-flex {
-                flex-wrap: wrap;
-                width: 100%;
-                gap: 4px !important;
-            }
+/* Fixed table header styling */
+.table thead th{position:sticky;top:0;z-index:2;background:rgba(255,255,255,0.85);backdrop-filter:blur(4px);font-weight:700;border-bottom:1px solid rgba(0,0,0,0.06)}
+.table td,.table th{white-space:nowrap;min-width:100px;padding:0.75rem;vertical-align:middle}
+.table td:nth-child(2),.table th:nth-child(2){white-space:normal;min-width:160px}
 
-            .card-banner form.d-flex .form-control {
-                height: 28px;
-                font-size: 12px;
-                padding: 4px 8px;
-            }
+/* Controls */
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 
-            /* Ensure buttons stay in line */
-            .card-banner .controls .btn-group {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 4px;
-            }
+/* Small screens improvements */
+@media (max-width: 768px){
+    .table-responsive{max-height: calc(100vh - 300px);} /* allow more room for stacked sidebar + banner */
+    .nav-links a{text-align:center;padding:12px}
+    .sidebar{padding:12px}
+    .sidebar img{width:84px;height:84px}
+    .card-banner .controls{flex-direction:column;gap:8px;align-items:flex-end}
+    .card-banner .controls .btn{width:100%}
 
-            /* Fix spacing for banner headings */
-            .card-banner h4 {
-                font-size: 16px !important;
-                margin-bottom: 2px !important;
-            }
+    /* Adjust card banner controls */
+    .card-banner {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 10px;
+        padding: 12px !important;
+    }
 
-            .card-banner small {
-                font-size: 11px;
-                opacity: 0.9;
-            }
-        }
+    .card-banner .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px !important;
+        width: 100%;
+    }
 
-        /* Desktop layout: fixed sidebar on the left and content to the right */
-        @media (min-width: 992px){
-            .sidebar{
-                position: fixed;
-                left: 0;  /* Change from right: 0 to left: 0 */
-                top: 0;
-                bottom: 0;
-                width: 240px;
-                background: rgba(46,57,77,0.95);
-                z-index: 1000;
-                padding: 1rem;
-                overflow-y: auto;
-            }
-            .nav-links a{text-align:left;padding:10px 12px}
-            .main-content{
-                margin-left: 240px;  /* Change from margin-right to margin-left */
-                padding: 1rem;
-                width: calc(100% - 240px);
-            }
+    /* Make buttons smaller and more compact on mobile */
+    .card-banner .btn {
+        padding: 4px 8px !important;
+        font-size: 12px !important;
+        min-height: 28px !important;
+        flex: 1;
+        white-space: nowrap;
+        min-width: auto !important;
+    }
 
-            /* Table should fill available vertical space beside the fixed sidebar */
-            .table-responsive{
-                max-height: calc(100vh - 200px);
-            }
-        }
+    /* Adjust search form in scholars list */
+    .card-banner form.d-flex {
+        flex-wrap: wrap;
+        width: 100%;
+        gap: 4px !important;
+    }
 
-        /* Extra polish */
-        .sidebar::-webkit-scrollbar{width:8px;height:8px}
-        .sidebar::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.2);border-radius:8px}
-        .table-responsive{scroll-behavior:smooth}
+    .card-banner form.d-flex .form-control {
+        height: 28px;
+        font-size: 12px;
+        padding: 4px 8px;
+    }
 
-        /* Sidebar toggle button (for mobile) */
-        .sidebar-toggle {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 1100;
-            background: rgba(46,57,77,0.95);
-            border: none;
-            border-radius: 4px;
-            padding: 8px;
-            display: none;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-        }
-        .sidebar-toggle .navbar-toggler-icon {
-            display: inline-block;
-            width: 1.5em;
-            height: 1.5em;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: 100%;
-        }
+    /* Ensure buttons stay in line */
+    .card-banner .controls .btn-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
 
-        /* Mobile styles */
-        @media (max-width: 768px) {
-            .sidebar-toggle {
-                display: block;
-                position: fixed;
-                top: 10px;
-                left: 10px;
-                z-index: 1100;
-                background: rgba(46,57,77,0.95);
-                border: none;
-                border-radius: 4px;
-                padding: 8px;
-                width: 40px;
-                height: 40px;
-                cursor: pointer;
-                transition: all 0.3s ease;
-            }
+    /* Fix spacing for banner headings */
+    .card-banner h4 {
+        font-size: 16px !important;
+        margin-bottom: 2px !important;
+    }
 
-            .sidebar-toggle:hover {
-                background: rgba(46,57,77,1);
-            }
+    .card-banner small {
+        font-size: 11px;
+        opacity: 0.9;
+    }
+}
 
-            .sidebar {
-                position: fixed;
-                left: -240px; /* Hide sidebar by default */
-                top: 0;
-                bottom: 0;
-                width: 240px;
-                transition: left 0.3s ease;
-                z-index: 1050;
-            }
+/* Desktop layout: fixed sidebar on the left and content to the right */
+@media (min-width: 992px){
+    .sidebar{
+        position: fixed;
+        left: 0;  /* Change from right: 0 to left: 0 */
+        top: 0;
+        bottom: 0;
+        width: 240px;
+        background: rgba(46,57,77,0.95);
+        z-index: 1000;
+        padding: 1rem;
+        overflow-y: auto;
+    }
+    .nav-links a{text-align:left;padding:10px 12px}
+    .main-content{
+        margin-left: 240px;  /* Change from margin-right to margin-left */
+        padding: 1rem;
+        width: calc(100% - 240px);
+    }
 
-            .sidebar.active {
-                left: 0; /* Show sidebar when active */
-            }
+    /* Table should fill available vertical space beside the fixed sidebar */
+    .table-responsive{
+        max-height: calc(100vh - 200px);
+    }
+}
 
-            .main-content {
-                margin-left: 0;
-                width: 100%;
-                padding: 60px 15px 15px; /* Add top padding for toggle button */
-                transition: margin-left 0.3s ease;
-            }
+/* Extra polish */
+.sidebar::-webkit-scrollbar{width:8px;height:8px}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.2);border-radius:8px}
+.table-responsive{scroll-behavior:smooth}
 
-            .main-content.sidebar-active {
-                margin-left: 0; /* Don't shift content when sidebar is open */
-            }
+/* Sidebar toggle button (for mobile) */
+.sidebar-toggle {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1100;
+    background: rgba(46,57,77,0.95);
+    border: none;
+    border-radius: 4px;
+    padding: 8px;
+    display: none;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+}
+.sidebar-toggle .navbar-toggler-icon {
+    display: inline-block;
+    width: 1.5em;
+    height: 1.5em;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100%;
+}
 
-            /* Ensure sidebar appears above content */
-            .sidebar {
-                box-shadow: 2px 0 8px rgba(0,0,0,0.1);
-            }
-        }
+/* Mobile styles */
+@media (max-width: 768px) {
+    .sidebar-toggle {
+        display: block;
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 1100;
+        background: rgba(46,57,77,0.95);
+        border: none;
+        border-radius: 4px;
+        padding: 8px;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .sidebar-toggle:hover {
+        background: rgba(46,57,77,1);
+    }
+
+    .sidebar {
+        position: fixed;
+        left: -240px; /* Hide sidebar by default */
+        top: 0;
+        bottom: 0;
+        width: 240px;
+        transition: left 0.3s ease;
+        z-index: 1050;
+    }
+
+    .sidebar.active {
+        left: 0; /* Show sidebar when active */
+    }
+
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 60px 15px 15px; /* Add top padding for toggle button */
+        transition: margin-left 0.3s ease;
+    }
+
+    .main-content.sidebar-active {
+        margin-left: 0; /* Don't shift content when sidebar is open */
+    }
+
+    /* Ensure sidebar appears above content */
+    .sidebar {
+        box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+    }
+}
+
+/* New dashboard card styles */
+.dashboard-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 20px;
+    height: 100%;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.card-icon {
+    font-size: 2rem;
+    margin-bottom: 15px;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-content h2 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 0;
+    color: #fff;
+}
+
+.card-content p {
+    color: rgba(255, 255, 255, 0.8);
+    margin: 5px 0;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-link {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-size: 0.8rem;
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    right: 15px;
+    text-align: center;
+}
+
+.dashboard-card {
+    min-height: 180px;
+    padding: 15px;
+}
+
+/* Adjust icon size and position */
+.card-icon {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 10px;
+    font-size: 1.5rem;
+}
+
+/* restore dashboard card colors (only color rules) */
+.scholars-card  { background: linear-gradient(135deg,#7b2ff7 0%,#c850c0 100%) !important; }
+.raising-card   { background: linear-gradient(135deg,#2ecc71 0%,#27ae60 100%) !important; }
+.retreat-card   { background: linear-gradient(135deg,#ff6b6b 0%,#ff8c94 100%) !important; }
+.attendance-card { background: linear-gradient(135deg,#0072ff 0%,#00c6ff 100%) !important; }
     </style>
 </head>
 <body>
@@ -587,18 +714,140 @@ if ($mysqli->error) {
         <p style="margin-bottom:12px;color:#fff">Poblacion Sur, Carmen, Bohol</p>
 
         <ul class="nav-links">
-            <li><a href="admin_dashboard.php?tab=attendance&ceremony=raising" class="<?php echo ($tab==='attendance' && $ceremony==='raising') ? 'active':''; ?>">Recent Attendance (Flag Raising)</a></li>
-            <li><a href="admin_dashboard.php?tab=attendance&ceremony=retreat" class="<?php echo ($tab==='attendance' && $ceremony==='retreat') ? 'active':''; ?>">Recent Attendance (Flag Retreat)</a></li>
-            <li><a href="admin_dashboard.php?tab=scholars" class="<?php echo $tab==='scholars' ? 'active':''; ?>">Scholars List</a></li>
-            <li><a href="admin_dashboard.php?tab=add" class="<?php echo $tab==='add' ? 'active':''; ?>">Add Scholar</a></li>
-            <li><a href="admin_dashboard.php?tab=reports" class="<?php echo $tab==='reports' ? 'active':''; ?>">Monthly Reports</a></li>
-            <li><a href="admin_dashboard.php?tab=attendance" class="<?php echo $tab==='attendance' ? 'active':''; ?>">Back to Attendance</a></li>
-            <li><a href="logout.php" class="nav-link">Logout</a></li>
+            <li>
+                <a href="admin_dashboard.php?tab=dashboard" class="<?php echo $tab==='dashboard' ? 'active':''; ?>">
+                    <i class="fas fa-chart-pie"></i> Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="admin_dashboard.php?tab=attendance&ceremony=raising" class="<?php echo ($tab==='attendance' && $ceremony==='raising') ? 'active':''; ?>">
+                    <i class="fas fa-flag-usa"></i> Recent Attendance (Flag Raising)
+                </a>
+            </li>
+            <li>
+                <a href="admin_dashboard.php?tab=attendance&ceremony=retreat" class="<?php echo ($tab==='attendance' && $ceremony==='retreat') ? 'active':''; ?>">
+                    <i class="fas fa-flag"></i> Recent Attendance (Flag Retreat)
+                </a>
+            </li>
+            <li>
+                <a href="admin_dashboard.php?tab=scholars" class="<?php echo $tab==='scholars' ? 'active':''; ?>">
+                    <i class="fas fa-user-graduate"></i> Scholars List
+                </a>
+            </li>
+            <li>
+                <a href="admin_dashboard.php?tab=add" class="<?php echo $tab==='add' ? 'active':''; ?>">
+                    <i class="fas fa-user-plus"></i> Add Scholar
+                </a>
+            </li>
+            <li>
+                <a href="admin_dashboard.php?tab=reports" class="<?php echo $tab==='reports' ? 'active':''; ?>">
+                    <i class="fas fa-chart-bar"></i> Monthly Reports
+                </a>
+            </li>
+            <li>
+                <a href="admin_dashboard.php?tab=attendance" class="<?php echo $tab==='attendance' ? 'active':''; ?>">
+                    <i class="fas fa-arrow-left"></i> Back to Attendance
+                </a>
+            </li>
+            <li>
+                <a href="logout.php" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </li>
         </ul>
     </div>
 
     <div class="main-content">
         <div class="container-fluid" style="max-width:var(--content-max)">
+            <?php if ($tab === 'dashboard'): ?>
+                <div class="row g-3 mb-4">
+        <!-- Total Scholars Card -->
+        <div class="col-md-3 col-sm-6">
+            <div class="dashboard-card scholars-card">
+                <div class="card-icon">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div class="card-content">
+                    <h2>
+                        <?php
+                        $scholarCount = $mysqli->query("SELECT COUNT(*) as total FROM students")->fetch_assoc();
+                        echo $scholarCount['total'];
+                        ?>
+                    </h2>
+                    <p>TOTAL SCHOLARS</p>
+                    <a href="admin_dashboard.php?tab=scholars" class="card-link">Click to manage</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Today's Flag Raising Card -->
+        <div class="col-md-3 col-sm-6">
+            <div class="dashboard-card raising-card">
+                <div class="card-icon">
+                    <i class="fas fa-flag"></i>
+                </div>
+                <div class="card-content">
+                    <h2>
+                        <?php
+                        $today = date('Y-m-d');
+                        $raisingCount = $mysqli->query("SELECT COUNT(*) as total FROM attendance 
+                            WHERE date = '$today' AND day = 'Monday'")->fetch_assoc();
+                        echo $raisingCount['total'];
+                        ?>
+                    </h2>
+                    <p>TODAY'S FLAG RAISING</p>
+                    <a href="admin_dashboard.php?tab=attendance&ceremony=raising" class="card-link">Click to view details</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Today's Flag Retreat Card -->
+        <div class="col-md-3 col-sm-6">
+            <div class="dashboard-card retreat-card">
+                <div class="card-icon">
+                    <i class="fas fa-flag-usa"></i>
+                </div>
+                <div class="card-content">
+                    <h2>
+                        <?php
+                        $retreatCount = $mysqli->query("SELECT COUNT(*) as total FROM attendance 
+                            WHERE date = '$today' AND day = 'Friday'")->fetch_assoc();
+                        echo $retreatCount['total'];
+                        ?>
+                    </h2>
+                    <p>TODAY'S FLAG RETREAT</p>
+                    <a href="admin_dashboard.php?tab=attendance&ceremony=retreat" class="card-link">Click to view details</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Attendance Card -->
+        <div class="col-md-3 col-sm-6">
+            <div class="dashboard-card attendance-card">
+                <div class="card-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="card-content">
+                    <h2>
+                        <?php
+                        $currentMonth = date('m');
+                        $currentYear = date('Y');
+                        $monthlyQuery = "SELECT 
+                            (COUNT(CASE WHEN status = 'Present' THEN 1 END) * 100.0 / NULLIF(COUNT(*), 0)) as percentage
+                            FROM attendance 
+                            WHERE MONTH(date) = '$currentMonth' AND YEAR(date) = '$currentYear'";
+                        $monthlyAttendance = $mysqli->query($monthlyQuery)->fetch_assoc();
+                        echo round($monthlyAttendance['percentage'] ?? 0) . '%';
+                        ?>
+                    </h2>
+                    <p>MONTHLY ATTENDANCE</p>
+                    <a href="admin_dashboard.php?tab=reports" class="card-link">Click for reports</a>
+                </div>
+            </div>
+        </div>
+    </div>
+            <?php endif; ?>
+
             <?php if ($tab === 'attendance'): ?>
                 <div class="card mb-3">
                     <div class="card-banner d-flex justify-content-between align-items-center">
@@ -994,7 +1243,7 @@ if ($mysqli->error) {
     }
     </script>
             <?php else: ?>
-                <div class="alert alert-info">Tab not found.</div>
+                <!-- <div class="alert alert-info" style="max-width: 400px">Select a tab to view its content.</div> -->
             <?php endif; ?>
         </div>
     </div>
