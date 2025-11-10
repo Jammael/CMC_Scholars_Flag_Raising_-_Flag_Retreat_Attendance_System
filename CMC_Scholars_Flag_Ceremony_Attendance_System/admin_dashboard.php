@@ -846,11 +846,167 @@ if ($mysqli->error) {
             </div>
         </div>
     </div>
-            <?php endif; ?>
 
+    <!-- Weekly Progress Overview (add this after the four dashboard cards and before the <?php endif; ?> for dashboard) -->
+    <?php
+    // expected (total scholars)
+    $expectedRow = $mysqli->query("SELECT COUNT(*) AS cnt FROM students")->fetch_assoc();
+    $expected = (int)($expectedRow['cnt'] ?? 0);
+
+    // helper to get counts by day + day-date
+    function get_day_counts($mysqli, $date, $day, $currentDate) {
+        // If the ceremony date is in the future, return zeros
+        if (strtotime($date) > strtotime($currentDate)) {
+            return ['recorded' => 0, 'present' => 0, 'late' => 0, 'absent' => 0];
+        }
+
+        $res = ['recorded' => 0, 'present' => 0, 'late' => 0, 'absent' => 0];
+        $q = "SELECT 
+                COUNT(*) AS recorded,
+                COUNT(CASE WHEN TIME(time_in) <= '07:30:00' THEN 1 END) AS present,
+                COUNT(CASE WHEN TIME(time_in) > '07:30:00' AND TIME(time_in) <= '08:00:00' THEN 1 END) AS late
+              FROM attendance
+              WHERE DATE(date) = ? AND day = ?";
+        if ($stmt = $mysqli->prepare($q)) {
+            $stmt->bind_param('ss', $date, $day);
+            $stmt->execute();
+            $r = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+            $res['recorded'] = (int)($r['recorded'] ?? 0);
+            $res['present'] = (int)($r['present'] ?? 0);
+            $res['late'] = (int)($r['late'] ?? 0);
+            // Absent = recorded entries whose status is Absent (i.e. recorded - present - late)
+            $res['absent'] = max(0, $res['recorded'] - $res['present'] - $res['late']);
+        }
+        return $res;
+    }
+
+    $mon_date = $thisWeekMonday;
+    $fri_date = $thisWeekFriday;
+    $monday = get_day_counts($mysqli, $mon_date, 'Monday', $currentDate);
+    $friday = get_day_counts($mysqli, $fri_date, 'Friday', $currentDate);
+
+    $totalRecorded = $monday['recorded'] + $friday['recorded'];
+    $totalExpected = $expected * 2; // two ceremonies per week
+    $missing = max(0, $totalExpected - $totalRecorded);
+    $completion = $totalExpected ? round($totalRecorded / $totalExpected * 100) : 0;
+    ?>
+    <div class="card mb-3">
+        <div class="card-banner d-flex justify-content-between align-items-center">
+            <div style="display:flex;gap:1rem;align-items:center;">
+                <i class="fas fa-list-ul" style="font-size:1.1rem;margin-right:.4rem"></i>
+                <h4 style="margin:0">Weekly Progress Overview</h4>
+            </div>
+            <div style="display:flex;gap:.5rem;align-items:center;">
+                <small class="badge bg-light text-dark">Week #<?php echo date('W'); ?></small>
+                <button class="btn btn-primary btn-sm" onclick="location.reload()">Refresh</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div style="padding:10px;border-radius:8px;border:1px solid rgba(0,0,0,0.04);background:#fff;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <strong><i class="fas fa-calendar-day text-primary"></i> Monday (Flag Raising):</strong>
+                                <div style="font-size:0.9rem;color:#666"><?php echo date('M j, Y', strtotime($mon_date)); ?></div>
+                            </div>
+                            <div style="font-size:1.25rem;font-weight:700;color:#1e88e5"><?php echo $monday['recorded']; ?></div>
+                        </div>
+                        <div style="height:8px;background:#eee;border-radius:8px;overflow:hidden;margin-bottom:6px;">
+                            <div style="width:<?php echo $expected ? ($monday['recorded']/$expected*100) : 0; ?>%;height:100%;background:linear-gradient(90deg,#66bb6a,#2e7d32)"></div>
+                        </div>
+                        <small><?php echo $monday['present']; ?> Present, <?php echo $monday['absent']; ?> Absent, <?php echo $monday['late']; ?> Late</small>
+                    </div>
+
+                    <div style="height:12px"></div>
+
+                    <div style="padding:10px;border-radius:8px;border:1px solid rgba(0,0,0,0.04);background:#fff;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <strong><i class="fas fa-flag-checkered text-success"></i> Friday (Flag Retreat):</strong>
+                                <div style="font-size:0.9rem;color:#666"><?php echo date('M j, Y', strtotime($fri_date)); ?></div>
+                            </div>
+                            <div style="font-size:1.25rem;font-weight:700;color:#2e7d32"><?php echo $friday['recorded']; ?></div>
+                        </div>
+                        <div style="height:8px;background:#eee;border-radius:8px;overflow:hidden;margin-bottom:6px;">
+                            <div style="width:<?php echo $expected ? ($friday['recorded']/$expected*100) : 0; ?>%;height:100%;background:linear-gradient(90deg,#42a5f5,#1565c0)"></div>
+                        </div>
+                        <small><?php echo $friday['present']; ?> Present, <?php echo $friday['absent']; ?> Absent, <?php echo $friday['late']; ?> Late</small>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div style="padding:12px;border-radius:8px;border:1px solid rgba(0,0,0,0.04);background:#fff;height:100%;display:flex;flex-direction:column;justify-content:space-between;">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong><i class="fas fa-check-circle text-info"></i> Weekly Completion:</strong>
+                                <span class="badge bg-info text-white" style="font-size:1rem;"><?php echo $completion; ?>%</span>
+                            </div>
+
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+                                <div style="flex:1;min-width:120px;padding:10px;border-radius:8px;background:#f7f9fc;text-align:center;">
+                                    <div style="font-size:1.25rem;font-weight:700"><?php echo $totalRecorded; ?></div>
+                                    <div style="font-size:0.85rem;color:#666">Total Recorded</div>
+                                </div>
+                                <div style="flex:1;min-width:120px;padding:10px;border-radius:8px;background:#fff4e6;text-align:center;">
+                                    <div style="font-size:1.25rem;font-weight:700;color:#ff9800"><?php echo $missing; ?></div>
+                                    <div style="font-size:0.85rem;color:#666">Missing Attendance</div>
+                                </div>
+                                <div style="flex:1;min-width:120px;padding:10px;border-radius:8px;background:#f1f8ff;text-align:center;">
+                                    <div style="font-size:1.25rem;font-weight:700"><?php echo $totalExpected; ?></div>
+                                    <div style="font-size:0.85rem;color:#666">Expected Total (week)</div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <canvas id="weeklyChart" height="140"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js --> 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+    (function(){
+        const ctx = document.getElementById('weeklyChart').getContext('2d');
+        const data = {
+            labels: ['Monday (<?php echo date("M j", strtotime($mon_date)); ?>)', 'Friday (<?php echo date("M j", strtotime($fri_date)); ?>)'],
+            datasets: [{
+                label: 'Recorded',
+                data: [<?php echo $monday['recorded']; ?>, <?php echo $friday['recorded']; ?>],
+                backgroundColor: ['#42a5f5','#66bb6a'],
+                borderRadius: 6,
+                barThickness: 40
+            },{
+                label: 'Missing (per day)',
+                data: [<?php echo max(0,$expected - $monday['recorded']); ?>, <?php echo max(0,$expected - $friday['recorded']); ?>],
+                backgroundColor: ['#ffcc80','#ffcc80'],
+                borderRadius: 6,
+                barThickness: 20
+            }]
+        };
+        new Chart(ctx, {
+            type: 'bar',
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top' } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { precision:0 } }
+                }
+            }
+        });
+    })();
+    </script>
             <?php if ($tab === 'attendance'): ?>
                 <div class="card mb-3">
-                    <div class="card-banner d-flex justify-content-between align-items-center">
+                        <div class="card-banner d-flex justify-content-between align-items-center">
     <div>
         <h4 style="margin:0">Recent Attendance (<?php echo ucfirst($ceremony); ?>)</h4>
         <small style="opacity:.9">
