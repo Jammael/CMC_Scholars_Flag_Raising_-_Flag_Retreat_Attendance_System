@@ -7,7 +7,8 @@ CREATE TABLE students (
   course VARCHAR(50),
   year VARCHAR(20),
   section VARCHAR(20),
-  scholarship_type VARCHAR(50)
+  scholarship_type VARCHAR(50),
+  status VARCHAR(20) DEFAULT 'active'
 );
 
 
@@ -46,3 +47,10 @@ INSERT INTO students (student_id, fullname, course, year, section, scholarship_t
 ('23-1008', 'Charlie Davis', 'BSIT', '3rd Year', '3A', 'Athletic Scholar'),
 ('23-1009', 'Diana Evans', 'BSIS', '1st Year', '1C', 'Cultural Scholar'),
 ('23-1010', 'Ethan Wilson', 'BSCS', '4th Year', '4B', 'Academic Scholar');
+
+-- find attendance rows whose student_id has no students record
+SELECT DISTINCT a.student_id
+FROM attendance a
+LEFT JOIN students s ON TRIM(a.student_id) = TRIM(s.student_id)
+WHERE s.student_id IS NULL
+ORDER BY a.student_id;
